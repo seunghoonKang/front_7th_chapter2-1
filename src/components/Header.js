@@ -1,3 +1,24 @@
+import { getCartCountFromLocalStorage } from "../utils/storage";
+
+export const renderCartBadge = () => {
+  const button = document.querySelector("#cart-icon-btn");
+  if (!button) return;
+
+  const count = getCartCountFromLocalStorage();
+
+  let badge = button.querySelector(".cart-count-badge");
+
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className =
+      "cart-count-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center";
+    button.appendChild(badge);
+  }
+
+  badge.textContent = count;
+  badge.style.display = count > 0 ? "flex" : "none";
+};
+
 export const Header = ({ title = "쇼핑몰" }) => {
   return /* HTML */ `
     <header class="bg-white shadow-sm sticky top-0 z-40">
@@ -44,9 +65,3 @@ export const Header = ({ title = "쇼핑몰" }) => {
     </header>
   `;
 };
-
-document.addEventListener("click", (event) => {
-  if (event.target.closest("#cart-icon-btn")) {
-    console.log("장바구니 아이콘 클릭");
-  }
-});

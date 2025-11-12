@@ -1,7 +1,10 @@
 import { getCategories, getProduct, getProducts } from "./api/productApi.js";
+import { renderCartBadge } from "./components/Header.js";
+import { AddToCartToast, showToast } from "./components/Toast.js";
 import { DetailPage } from "./pages/DetailPage.js";
 import { HomePage } from "./pages/HomePage.js";
 import { filters } from "./store/filters.js";
+import { addCartItemToLocalStorage } from "./utils/storage.js";
 
 let categories = [];
 
@@ -25,6 +28,7 @@ const init = async () => {
 
   filters.subscribe(render);
   eventHandlers();
+  renderCartBadge();
 };
 
 const render = async () => {
@@ -53,7 +57,7 @@ const render = async () => {
 };
 
 const eventHandlers = () => {
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", async (event) => {
     // breadcrumb 전체 버튼 클릭 시 필터 초기화
     if (event.target.closest("button[data-breadcrumb='reset']")) {
       filters.setState({ category1: "", category2: "" });
@@ -78,10 +82,37 @@ const eventHandlers = () => {
 
       filters.setState({ category1, category2 });
     }
+
+    // 장바구니 버튼 클릭 이벤트 핸들러
+    if (event.target.closest("#cart-icon-btn")) {
+      const cartModal = document.querySelector(".cart-modal");
+      cartModal.classList.remove("hidden");
+    }
+
+    // 장바구니 모달 닫기 버튼 클릭 이벤트 핸들러
+    if (event.target.closest("#cart-modal-close-btn")) {
+      const cartModal = document.querySelector(".cart-modal");
+      cartModal.classList.add("hidden");
+    }
+
+    // 장바구니 모달 배경 클릭 시 닫기
+    if (event.target.closest(".cart-modal-overlay")) {
+      const cartModal = document.querySelector(".cart-modal");
+      cartModal.classList.add("hidden");
+    }
+
+    // 아이템 중 장바구니 담기 눌렀을 때 로컬 스토리지에 추가
+    if (event.target.closest(".add-to-cart-btn")) {
+      const productId = event.target.closest(".add-to-cart-btn").dataset.productId;
+      const product = await getProduct(productId);
+      addCartItemToLocalStorage(productId, product);
+      renderCartBadge();
+      showToast(AddToCartToast());
+    }
   });
 
   // input 검색 이벤트 핸들러
-  document.addEventListener("keyup", async (event) => {
+  document.addEventListener("keyup", (event) => {
     const target = document.getElementById("search-input");
     if (target && event.key === "Enter") {
       const search = target.value;

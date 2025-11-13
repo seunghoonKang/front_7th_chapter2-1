@@ -8,7 +8,7 @@ export const ProductItem = ({ title, image, lprice, productId, brand }) => {
       <div class="aspect-square bg-gray-100 overflow-hidden cursor-pointer product-image">
         <img
           src=${image}
-          alt="${title}"
+          alt=${title}
           class="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
           loading="lazy"
         />
